@@ -1,0 +1,21 @@
+.audio {
+  &__container {
+    display: flex;
+    align-items: center;
+  }
+
+  &__poster {
+    $size: 40px;
+
+    height: $size;
+    width: $size;
+    border-radius: 4px;
+    background: blue;
+    margin-right: 12px;
+
+    &-img {
+      height: 100%;
+      width: 100%;
+    }
+  }
+}
