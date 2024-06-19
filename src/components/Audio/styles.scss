@@ -1,7 +1,11 @@
 .audio {
+  max-width: 360px;
+  width: 100%;
+
   &__container {
     display: flex;
     align-items: center;
+    justify-content: space-between;
   }
 
   &__poster {
@@ -12,10 +16,44 @@
     border-radius: 4px;
     background: blue;
     margin-right: 12px;
+    overflow: hidden;
+    position: relative;
 
     &-img {
       height: 100%;
       width: 100%;
+      object-fit: cover;
     }
+
+    &-effect{
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      z-index: 1;
+      background-color: rgba(0, 0, 0, .6);
+    }
+  }
+
+  &__player {
+    display: block !important;
+  }
+
+  &__title {
+    font-size: 16px !important;
+  }
+
+  &__executor {
+    color: #818c99;
+  }
+
+  &__timer{
+    color: #818C99;
+    font-size: 13px !important;
+  }
+
+  &__col{
+    display: flex;
   }
 }
