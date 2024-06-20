@@ -31,6 +31,8 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
 
   const [isHovered, setIsHovered] = useState(false);
 
+  const [progressBarValue, setProgressBarValue] = useState(0);
+
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
   const optiosRef = useRef<HTMLDivElement>(null);
@@ -42,6 +44,7 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
       audioRef.current.addEventListener("loadedmetadata", () => {
         setDuration(audioRef.current.duration);
         audioRef.current.volume = 0.5;
+
         setVolume(0.5);
 
         let convertedDuration = convertSeconds(audioRef.current.duration);
@@ -82,16 +85,11 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
       let convertedCurrentTime = convertSeconds(audioRef.current.currentTime);
 
       setDisplayedValue(convertedCurrentTime);
-    }
 
-    if (progressBarRef.current) {
       if (currentValue === 0) {
-        progressBarRef.current.style.width = 0;
+        setProgressBarValue(0);
       } else {
-        let progressValue =
-          (audioRef.current.currentTime * 100) / audioRef.current.duration;
-
-        progressBarRef.current.style.width = `${progressValue.toFixed(2)}%`;
+        setProgressBarValue(audioRef.current.currentTime);
       }
     }
   }, [currentValue]);
@@ -102,6 +100,21 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
 
   const handleOptionsClick = () => {
     setIsOptionsActive((prevState) => !prevState);
+  };
+
+  const handleChangeProgressBarValue = (event: any) => {
+    setProgressBarValue(event.target.value);
+  };
+
+  const handleMouseDown = () => {
+    setIsPlaying(false);
+  };
+
+  const handleMouseUp = () => {
+    audioRef.current.currentTime = progressBarValue;
+    setCurrentValue(progressBarValue);
+
+    setIsPlaying(true);
   };
 
   useClickOutside(optiosRef, () => setIsOptionsActive(false));
@@ -155,7 +168,13 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
         <audio className="audio__player" src={audioSrc} ref={audioRef}></audio>
       </div>
       <div className="audio__progress">
-        <ProgressBar ref={progressBarRef} />
+        <ProgressBar
+          ref={progressBarRef}
+          value={progressBarValue}
+          onChange={handleChangeProgressBarValue}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+        />
       </div>
     </div>
   );
