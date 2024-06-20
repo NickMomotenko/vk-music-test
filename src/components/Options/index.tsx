@@ -1,6 +1,8 @@
-import { Text } from "@vkontakte/vkui";
-import "./styles.scss";
 import { forwardRef } from "react";
+
+import { Text } from "@vkontakte/vkui";
+
+import "./styles.scss";
 
 type OptionsProps = {
   data: string[];

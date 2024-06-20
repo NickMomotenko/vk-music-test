@@ -3,23 +3,27 @@ import { useEffect, useRef, useState } from "react";
 import { IconButton, Text } from "@vkontakte/vkui";
 import { Icon16MoreVertical, Icon28Pause, Icon28Play } from "@vkontakte/icons";
 
-import defaultPosterIcon from "../../assets/icons/audio-poster.svg";
-
-import "./styles.scss";
-import { convertSeconds } from "../../helpers/helpers";
 import { Equalizer } from "../Equalizer";
 import { ProgressBar } from "../ProgressBar";
 import { Options } from "../Options";
+
 import { useClickOutside } from "../../hooks/useClickOutside";
 
+import { convertSeconds } from "../../helpers/helpers";
+
+import defaultPosterIcon from "../../assets/icons/audio-poster.svg";
+
+import "./styles.scss";
+
 type AudioProps = {
-  audioSrc?: string;
+  audioSrc: string;
 };
 
 export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [duration, setDuration] = useState<number>(0);
   const [currentValue, setCurrentValue] = useState<number>(0);
+  const [volume, setVolume] = useState<number>(0);
 
   const [displayedValue, setDisplayedValue] = useState<string>("");
 
@@ -37,6 +41,8 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
     if (audioRef.current) {
       audioRef.current.addEventListener("loadedmetadata", () => {
         setDuration(audioRef.current.duration);
+        audioRef.current.volume = 0.5;
+        setVolume(0.5);
 
         let convertedDuration = convertSeconds(audioRef.current.duration);
         setDisplayedValue(convertedDuration);
@@ -96,19 +102,18 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
 
   const handleOptionsClick = () => {
     setIsOptionsActive((prevState) => !prevState);
-    setIsHovered(false);
   };
 
   useClickOutside(optiosRef, () => setIsOptionsActive(false));
 
   return (
-    <div
-      className={audioClasses}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <div className={audioClasses}>
       <div className="audio__container">
-        <div className="audio__col">
+        <div
+          className="audio__col audio__col--info"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
           <div className="audio__poster" onClick={handleAudioClick}>
             <img
               src={defaultPosterIcon}
@@ -131,11 +136,11 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
             <Text className="audio__title">Трек</Text>
             <Text className="audio__executor">Исполнитель</Text>
           </div>
+          <Text className="audio__timer">{displayedValue}</Text>
         </div>
         <div className="audio__col">
-          <Text className="audio__timer">{displayedValue}</Text>
           <div className="audio__options">
-            <IconButton label="Опции" onClick={() => setIsOptionsActive(true)}>
+            <IconButton label="Опции" onClick={handleOptionsClick}>
               <Icon16MoreVertical width={20} height={20} fill="#2688EB" />
             </IconButton>
             {isOptionsActive && (
