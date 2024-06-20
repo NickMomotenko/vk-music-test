@@ -1,6 +1,25 @@
 .audio {
   max-width: 360px;
   width: 100%;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 4px 12px 4px 4px;
+  background-color: rgba(174, 183, 194, 0.12);
+  position: relative;
+  overflow: hidden;
+
+  transition: 0.4s;
+
+  &:hover {
+    background-color: rgba(174, 183, 194, 0.12);
+  }
+
+  &--playing {
+    .audio__poster-effect {
+      visibility: visible;
+      opacity: 1;
+    }
+  }
 
   &__container {
     display: flex;
@@ -25,14 +44,22 @@
       object-fit: cover;
     }
 
-    &-effect{
+    &-effect {
       position: absolute;
       top: 0;
       left: 0;
       height: 100%;
       width: 100%;
       z-index: 1;
-      background-color: rgba(0, 0, 0, .6);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(0, 0, 0, 0.6);
+      transition: opacity 0.4s;
+
+      visibility: hidden;
+      opacity: 0;
     }
   }
 
@@ -48,12 +75,25 @@
     color: #818c99;
   }
 
-  &__timer{
-    color: #818C99;
+  &__timer {
+    color: #818c99;
     font-size: 13px !important;
   }
 
-  &__col{
+  &__col {
     display: flex;
+  }
+
+  &__progress {
+    height: 1px;
+    width: 0;
+    background-color: blueviolet;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    transition: width 0.1s;
+    margin: 0 5px;
+
+    border-radius: 1px;
   }
 }

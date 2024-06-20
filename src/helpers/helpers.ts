@@ -1,4 +1,4 @@
-export const converSeconds = (value: number) => {
+export const convertSeconds = (value: number) => {
   let sec_num = Number(parseInt(value, 10));
   let hours = Math.floor(sec_num / 3600);
   let minutes = Math.floor((sec_num - hours * 3600) / 60);
