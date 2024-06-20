@@ -15,8 +15,7 @@
 
   &--playing {
     .audio__poster-effect {
-      visibility: visible;
-      opacity: 1;
+      background-color: rgba(0, 0, 0, .6);
     }
   }
 
@@ -63,7 +62,7 @@
   }
 
   &__player {
-    display: block !important;
+    display: none;
   }
 
   &__title {

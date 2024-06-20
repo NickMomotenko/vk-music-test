@@ -82,24 +82,21 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
       if (currentValue === 0) {
         progressBarRef.current.style.width = 0;
       } else {
-        let value =
+        let progressValue =
           (audioRef.current.currentTime * 100) / audioRef.current.duration;
 
-        progressBarRef.current.style.width = `${value.toFixed(2)}%`;
+        progressBarRef.current.style.width = `${progressValue.toFixed(2)}%`;
       }
     }
   }, [currentValue]);
-
-  useEffect(() => {}, [isHovered]);
 
   const handleAudioClick = () => {
     setIsPlaying(!isPlaying);
   };
 
-  const handleOptionsClick = (event: any) => {
-    event.stopPropagation();
-
+  const handleOptionsClick = () => {
     setIsOptionsActive((prevState) => !prevState);
+    setIsHovered(false);
   };
 
   useClickOutside(optiosRef, () => setIsOptionsActive(false));
@@ -107,8 +104,8 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
   return (
     <div
       className={audioClasses}
-      onMouseOver={() => setIsHovered(true)}
-      onMouseOut={() => setIsHovered(false)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <div className="audio__container">
         <div className="audio__col">
@@ -138,13 +135,14 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
         <div className="audio__col">
           <Text className="audio__timer">{displayedValue}</Text>
           <div className="audio__options">
-            <IconButton label="Опции" onClick={handleOptionsClick}>
+            <IconButton label="Опции" onClick={() => setIsOptionsActive(true)}>
               <Icon16MoreVertical width={20} height={20} fill="#2688EB" />
             </IconButton>
             {isOptionsActive && (
               <Options
                 data={["option 1", "option 2", "option 3"]}
                 ref={optiosRef}
+                onItemClick={handleOptionsClick}
               />
             )}
           </div>
