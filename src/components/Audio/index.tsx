@@ -1,13 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 
-import { Text } from "@vkontakte/vkui";
+import { IconButton, Text } from "@vkontakte/vkui";
+import { Icon16MoreVertical, Icon28Pause, Icon28Play } from "@vkontakte/icons";
 
-import defaultPoster from "../../assets/icons/audio-poster.png";
+import defaultPosterIcon from "../../assets/icons/audio-poster.svg";
 
 import "./styles.scss";
 import { convertSeconds } from "../../helpers/helpers";
 import { Equalizer } from "../Equalizer";
 import { ProgressBar } from "../ProgressBar";
+import { Options } from "../Options";
+import { useClickOutside } from "../../hooks/useClickOutside";
 
 type AudioProps = {
   audioSrc?: string;
@@ -20,8 +23,13 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
 
   const [displayedValue, setDisplayedValue] = useState<string>("");
 
+  const [isOptionsActive, setIsOptionsActive] = useState(false);
+
+  const [isHovered, setIsHovered] = useState(false);
+
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
+  const optiosRef = useRef<HTMLDivElement>(null);
 
   const audioClasses = isPlaying ? "audio audio--playing" : "audio";
 
@@ -82,18 +90,44 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
     }
   }, [currentValue]);
 
+  useEffect(() => {}, [isHovered]);
+
+  const handleAudioClick = () => {
+    setIsPlaying(!isPlaying);
+  };
+
+  const handleOptionsClick = (event: any) => {
+    event.stopPropagation();
+
+    setIsOptionsActive((prevState) => !prevState);
+  };
+
+  useClickOutside(optiosRef, () => setIsOptionsActive(false));
+
   return (
-    <div className={audioClasses} onClick={() => setIsPlaying(!isPlaying)}>
+    <div
+      className={audioClasses}
+      onMouseOver={() => setIsHovered(true)}
+      onMouseOut={() => setIsHovered(false)}
+    >
       <div className="audio__container">
         <div className="audio__col">
-          <div className="audio__poster">
+          <div className="audio__poster" onClick={handleAudioClick}>
             <img
-              src={defaultPoster}
+              src={defaultPosterIcon}
               alt="poster image"
               className="audio__poster-img"
             />
             <div className="audio__poster-effect">
-              <Equalizer />
+              {!isHovered && isPlaying ? (
+                <Equalizer />
+              ) : !isHovered && !isPlaying ? (
+                <></>
+              ) : isPlaying ? (
+                <Icon28Pause fill="#fff" />
+              ) : (
+                <Icon28Play fill="#fff" />
+              )}
             </div>
           </div>
           <div className="audio__info">
@@ -103,6 +137,17 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
         </div>
         <div className="audio__col">
           <Text className="audio__timer">{displayedValue}</Text>
+          <div className="audio__options">
+            <IconButton label="Опции" onClick={handleOptionsClick}>
+              <Icon16MoreVertical width={20} height={20} fill="#2688EB" />
+            </IconButton>
+            {isOptionsActive && (
+              <Options
+                data={["option 1", "option 2", "option 3"]}
+                ref={optiosRef}
+              />
+            )}
+          </div>
         </div>
         <audio className="audio__player" src={audioSrc} ref={audioRef}></audio>
       </div>

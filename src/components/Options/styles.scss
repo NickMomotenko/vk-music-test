@@ -1,0 +1,23 @@
+.options {
+  position: absolute;
+  overflow: hidden;
+
+  width: 100px;
+
+  border-radius: 8px;
+  top: 0;
+  right: 0;
+  margin-top: 40px;
+  background: #fff;
+  z-index: 2;
+  border: 1px solid #8080800a;
+
+  &__item {
+    padding: 5px 10px;
+    transition: background-color 0.4s;
+
+    &:hover {
+      background-color: #d2f6f5;
+    }
+  }
+}

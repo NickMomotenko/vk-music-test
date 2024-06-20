@@ -6,7 +6,6 @@
   padding: 4px 12px 4px 4px;
   background-color: rgba(174, 183, 194, 0.12);
   position: relative;
-  overflow: hidden;
 
   transition: 0.4s;
 
@@ -55,11 +54,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: rgba(0, 0, 0, 0.6);
+      background-color: transparent;
       transition: opacity 0.4s;
 
-      visibility: hidden;
-      opacity: 0;
+      visibility: visible;
+      opacity: 1;
     }
   }
 
@@ -78,10 +77,12 @@
   &__timer {
     color: #818c99;
     font-size: 13px !important;
+    margin-right: 5px !important;
   }
 
   &__col {
     display: flex;
+    align-items: center;
   }
 
   &__progress {
@@ -91,5 +92,9 @@
     right: 0;
     width: 100%;
     padding: 0 5px;
+  }
+
+  &__options {
+    position: relative;
   }
 }

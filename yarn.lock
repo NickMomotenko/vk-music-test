@@ -522,7 +522,7 @@
   dependencies:
     "@swc/helpers" "^0.5.11"
 
-"@vkontakte/icons@^2.115.0":
+"@vkontakte/icons@^2.115.0", "@vkontakte/icons@^2.122.0":
   "integrity" "sha512-kMHKEq357wSllq734cbjQ7YBprZknmC/rE+Yy7qX9OPIgwnNX+sx03zRDAtdMDi55VQ0J9mSCRelzsyBNWoNUg=="
   "resolved" "https://registry.npmjs.org/@vkontakte/icons/-/icons-2.122.0.tgz"
   "version" "2.122.0"
