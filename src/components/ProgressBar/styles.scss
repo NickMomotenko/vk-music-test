@@ -1,0 +1,8 @@
+.progress-bar {
+  height: 1px;
+  width: 0;
+  background-color: blueviolet;
+  transition: width 0.1s;
+
+  border-radius: 1px;
+}

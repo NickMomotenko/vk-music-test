@@ -7,6 +7,7 @@ import defaultPoster from "../../assets/icons/audio-poster.png";
 import "./styles.scss";
 import { convertSeconds } from "../../helpers/helpers";
 import { Equalizer } from "../Equalizer";
+import { ProgressBar } from "../ProgressBar";
 
 type AudioProps = {
   audioSrc?: string;
@@ -19,17 +20,17 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
 
   const [displayedValue, setDisplayedValue] = useState<string>("");
 
-  const audioRef = useRef(null);
-  const progressBarRef = useRef(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const progressBarRef = useRef<HTMLDivElement>(null);
 
   const audioClasses = isPlaying ? "audio audio--playing" : "audio";
 
   useEffect(() => {
-    if (audioRef && audioRef.current) {
+    if (audioRef.current) {
       audioRef.current.addEventListener("loadedmetadata", () => {
-        let convertedDuration = convertSeconds(audioRef.current.duration);
-        setDuration(convertedDuration);
+        setDuration(audioRef.current.duration);
 
+        let convertedDuration = convertSeconds(audioRef.current.duration);
         setDisplayedValue(convertedDuration);
       });
 
@@ -41,16 +42,21 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
         setCurrentValue(0);
         setIsPlaying(false);
 
-        progressBarRef.current.style.width = 0;
-
-        let convertedDuration = convertSeconds(audioRef.current.duration);
-        setDuration(convertedDuration);
+        setDisplayedValue(duration.toString());
       });
     }
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.removeEventListener("loadedmetadata");
+        audioRef.current.removeEventListener("timeupdate");
+        audioRef.current.removeEventListener("ended");
+      }
+    };
   }, []);
 
   useEffect(() => {
-    if (audioRef && audioRef.current) {
+    if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.play();
       } else audioRef.current.pause();
@@ -58,17 +64,21 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
   }, [isPlaying]);
 
   useEffect(() => {
-    if (audioRef && audioRef.current) {
+    if (audioRef.current) {
       let convertedCurrentTime = convertSeconds(audioRef.current.currentTime);
 
       setDisplayedValue(convertedCurrentTime);
     }
 
-    if (progressBarRef && progressBarRef.current) {
-      let value =
-        (audioRef.current.currentTime * 100) / audioRef.current.duration;
+    if (progressBarRef.current) {
+      if (currentValue === 0) {
+        progressBarRef.current.style.width = 0;
+      } else {
+        let value =
+          (audioRef.current.currentTime * 100) / audioRef.current.duration;
 
-      progressBarRef.current.style.width = `${value.toFixed(2)}%`;
+        progressBarRef.current.style.width = `${value.toFixed(2)}%`;
+      }
     }
   }, [currentValue]);
 
@@ -96,7 +106,9 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
         </div>
         <audio className="audio__player" src={audioSrc} ref={audioRef}></audio>
       </div>
-      <div className="audio__progress" ref={progressBarRef}></div>
+      <div className="audio__progress">
+        <ProgressBar ref={progressBarRef} />
+      </div>
     </div>
   );
 };
