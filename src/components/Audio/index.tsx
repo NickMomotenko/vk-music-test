@@ -14,6 +14,7 @@ import { convertSeconds } from "../../helpers/helpers";
 import defaultPosterIcon from "../../assets/icons/audio-poster.svg";
 
 import "./styles.scss";
+import { useRangeInput, useRangeIpnut } from "../../hooks/useRangeInput";
 
 type AudioProps = {
   audioSrc: string;
@@ -33,41 +34,55 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
 
   const [progressBarValue, setProgressBarValue] = useState(0);
 
+  const [isSeeking, setIsSeeking] = useState(false);
+
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
   const optiosRef = useRef<HTMLDivElement>(null);
 
   const audioClasses = isPlaying ? "audio audio--playing" : "audio";
 
+  const [config, setConfig] = useRangeInput();
+
   useEffect(() => {
+    const handleLoadedMetadata = () => {
+      setDuration(audioRef.current.duration);
+      audioRef.current.volume = 0.5;
+      setVolume(0.5);
+      setConfig((prevState) => ({
+        ...prevState,
+        max: audioRef.current.duration,
+      }));
+      let convertedDuration = convertSeconds(audioRef.current.duration);
+      setDisplayedValue(convertedDuration);
+    };
+
+    const handleTimeUpdate = () => {
+      setCurrentValue(audioRef.current.currentTime);
+      setProgressBarValue(audioRef.current.currentTime);
+    };
+
+    const handleEnded = () => {
+      setCurrentValue(0);
+      setIsPlaying(false);
+      setProgressBarValue(0);
+      setDisplayedValue(duration.toString());
+    };
+
     if (audioRef.current) {
-      audioRef.current.addEventListener("loadedmetadata", () => {
-        setDuration(audioRef.current.duration);
-        audioRef.current.volume = 0.5;
-
-        setVolume(0.5);
-
-        let convertedDuration = convertSeconds(audioRef.current.duration);
-        setDisplayedValue(convertedDuration);
-      });
-
-      audioRef.current.addEventListener("timeupdate", () => {
-        setCurrentValue(audioRef.current.currentTime);
-      });
-
-      audioRef.current.addEventListener("ended", () => {
-        setCurrentValue(0);
-        setIsPlaying(false);
-
-        setDisplayedValue(duration.toString());
-      });
+      audioRef.current.addEventListener("loadedmetadata", handleLoadedMetadata);
+      audioRef.current.addEventListener("timeupdate", handleTimeUpdate);
+      audioRef.current.addEventListener("ended", handleEnded);
     }
 
     return () => {
       if (audioRef.current) {
-        audioRef.current.removeEventListener("loadedmetadata");
-        audioRef.current.removeEventListener("timeupdate");
-        audioRef.current.removeEventListener("ended");
+        audioRef.current.removeEventListener(
+          "loadedmetadata",
+          handleLoadedMetadata
+        );
+        audioRef.current.removeEventListener("timeupdate", handleTimeUpdate);
+        audioRef.current.removeEventListener("ended", handleEnded);
       }
     };
   }, []);
@@ -85,17 +100,19 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
       let convertedCurrentTime = convertSeconds(audioRef.current.currentTime);
 
       setDisplayedValue(convertedCurrentTime);
-
-      if (currentValue === 0) {
-        setProgressBarValue(0);
-      } else {
-        setProgressBarValue(audioRef.current.currentTime);
-      }
     }
   }, [currentValue]);
 
+  useEffect(() => {
+    if (isSeeking) {
+      let convertedCurrentTime = convertSeconds(progressBarValue);
+
+      setDisplayedValue(convertedCurrentTime);
+    }
+  }, [isSeeking, progressBarValue]);
+
   const handleAudioClick = () => {
-    setIsPlaying(!isPlaying);
+    setIsPlaying((prevState) => !prevState);
   };
 
   const handleOptionsClick = () => {
@@ -103,18 +120,24 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
   };
 
   const handleChangeProgressBarValue = (event: any) => {
+    setCurrentValue(event.target.value);
     setProgressBarValue(event.target.value);
   };
 
   const handleMouseDown = () => {
     setIsPlaying(false);
+    setIsSeeking(true);
+    setIsHovered(true);
   };
 
-  const handleMouseUp = () => {
+  const handleMouseUp = (event: any) => {
+    event.stopPropagation();
+
     audioRef.current.currentTime = progressBarValue;
-    setCurrentValue(progressBarValue);
 
     setIsPlaying(true);
+    setIsSeeking(false);
+    setIsHovered(false);
   };
 
   useClickOutside(optiosRef, () => setIsOptionsActive(false));
@@ -136,10 +159,12 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
             <div className="audio__poster-effect">
               {!isHovered && isPlaying ? (
                 <Equalizer />
-              ) : !isHovered && !isPlaying ? (
-                <></>
-              ) : isPlaying ? (
+              ) : isSeeking ? (
                 <Icon28Pause fill="#fff" />
+              ) : isPlaying && isHovered ? (
+                <Icon28Pause fill="#fff" />
+              ) : !isPlaying && !isHovered ? (
+                <></>
               ) : (
                 <Icon28Play fill="#fff" />
               )}
@@ -171,6 +196,7 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
         <ProgressBar
           ref={progressBarRef}
           value={progressBarValue}
+          config={config}
           onChange={handleChangeProgressBarValue}
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}

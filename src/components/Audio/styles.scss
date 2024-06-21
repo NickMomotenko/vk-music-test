@@ -95,11 +95,12 @@
 
   &__progress {
     position: absolute;
-    bottom: -4px;
+    bottom: 0;
     left: 0;
     right: 0;
     width: 100%;
-    padding: 0 5px;
+    padding: 0 6px;
+    line-height: 0;
   }
 
   &__options {
