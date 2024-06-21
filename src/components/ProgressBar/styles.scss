@@ -11,25 +11,19 @@
     height: 4px;
     width: 4px;
     background-color: transparent;
-    box-shadow: none !important;
-
-    &::after {
-      display: none !important;
-    }
   }
 
   & .MuiSlider-rail {
-    background-color:blueviolet;
+    background-color: blueviolet;
     opacity: 0.1;
   }
 
-  & .MuiSlider-track{
+  & .MuiSlider-track {
     background-color: blueviolet;
-    opacity: .5;
+    opacity: 0.5;
   }
 
   &.MuiSlider-root {
     padding: 0;
   }
-  
 }

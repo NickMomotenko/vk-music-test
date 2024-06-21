@@ -31,7 +31,7 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
   const [progressBarValue, setProgressBarValue] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
 
-  const [isProgressBarDisabled, setIsProgressBarDisabled] = useState(true);
+  const [isProgressBarDisabled, setIsProgressBarDisabled] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
@@ -101,11 +101,19 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
   }, [currentValue]);
 
   useEffect(() => {
+    const handleMouseOutside = () => {
+      handleMouseUp();
+    };
+
     if (isSeeking) {
       let convertedCurrentTime = convertSeconds(progressBarValue);
 
+      document.addEventListener("mouseup", handleMouseOutside);
+
       setDisplayedValue(convertedCurrentTime);
     }
+
+    return () => document.removeEventListener("mouseup", handleMouseOutside);
   }, [isSeeking, progressBarValue]);
 
   const handleAudioClick = () => {
@@ -127,9 +135,7 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
     setIsHovered(true);
   };
 
-  const handleMouseUp = (event: any) => {
-    event.stopPropagation();
-
+  const handleMouseUp = () => {
     audioRef.current.currentTime = progressBarValue;
 
     setIsPlaying(true);
@@ -205,6 +211,7 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
           onChange={handleChangeProgressBarValue}
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
+          onClick={handleMouseUp}
           disabled={isProgressBarDisabled}
         />
       </div>
