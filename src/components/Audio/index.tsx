@@ -31,7 +31,7 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
   const [progressBarValue, setProgressBarValue] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
 
-  const [isProgressBarDisabled, setIsProgressBarDisabled] = useState(false);
+  const [isProgressBarDisabled, setIsProgressBarDisabled] = useState(true);
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
