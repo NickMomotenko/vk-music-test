@@ -14,7 +14,7 @@ import { convertSeconds } from "../../helpers/helpers";
 import defaultPosterIcon from "../../assets/icons/audio-poster.svg";
 
 import "./styles.scss";
-import { useRangeInput, useRangeIpnut } from "../../hooks/useRangeInput";
+import { useRangeInput } from "../../hooks/useRangeInput";
 
 type AudioProps = {
   audioSrc: string;
@@ -25,16 +25,13 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
   const [duration, setDuration] = useState<number>(0);
   const [currentValue, setCurrentValue] = useState<number>(0);
   const [volume, setVolume] = useState<number>(0);
-
   const [displayedValue, setDisplayedValue] = useState<string>("");
-
   const [isOptionsActive, setIsOptionsActive] = useState(false);
-
   const [isHovered, setIsHovered] = useState(false);
-
   const [progressBarValue, setProgressBarValue] = useState(0);
-
   const [isSeeking, setIsSeeking] = useState(false);
+
+  const [isProgressBarDisabled, setIsProgressBarDisabled] = useState(true);
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
@@ -183,7 +180,15 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
             </IconButton>
             {isOptionsActive && (
               <Options
-                data={["option 1", "option 2", "option 3"]}
+                data={[
+                  {
+                    text: `${
+                      isProgressBarDisabled ? "Разблокировать" : "Заблокировать"
+                    } прогрес бар`,
+                    func: () =>
+                      setIsProgressBarDisabled(!isProgressBarDisabled),
+                  },
+                ]}
                 ref={optiosRef}
                 onItemClick={handleOptionsClick}
               />
@@ -200,6 +205,7 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
           onChange={handleChangeProgressBarValue}
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
+          disabled={isProgressBarDisabled}
         />
       </div>
     </div>

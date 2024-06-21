@@ -5,8 +5,11 @@ import { Text } from "@vkontakte/vkui";
 import "./styles.scss";
 
 type OptionsProps = {
-  data: string[];
-  onItemClick: (event: any) => void;
+  data: {
+    text: string;
+    func: () => void;
+  }[];
+  onItemClick: () => void;
 };
 
 export const Options = forwardRef<HTMLDivElement, OptionsProps>(
@@ -14,8 +17,15 @@ export const Options = forwardRef<HTMLDivElement, OptionsProps>(
     return (
       <div className="options" ref={ref}>
         <ul className="options__list">
-          {data?.map((text, index) => (
-            <li className="options__item" key={index} onClick={onItemClick}>
+          {data?.map(({ text, func }, index) => (
+            <li
+              className="options__item"
+              key={index}
+              onClick={() => {
+                func();
+                onItemClick();
+              }}
+            >
               <Text>{text}</Text>
             </li>
           ))}
