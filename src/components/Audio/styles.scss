@@ -1,6 +1,6 @@
 .audio {
   max-width: 360px;
-  width: 100%;
+  width: 360px;
   cursor: pointer;
   border-radius: 8px;
 
@@ -99,7 +99,8 @@
     left: 0;
     right: 0;
     width: 100%;
-    padding: 0 5px;
+    padding: 0 6px;
+    line-height: 0;
   }
 
   &__options {

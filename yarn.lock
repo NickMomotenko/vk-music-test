@@ -1388,6 +1388,11 @@
   "resolved" "https://registry.npmjs.org/react-refresh/-/react-refresh-0.14.2.tgz"
   "version" "0.14.2"
 
+"react-semantic-ui-range@^0.7.1":
+  "integrity" "sha512-6AQLuFeARHcIO7yl4Pd0BBIB9sJyeNK1mku7luK6aTXrj9EGaqr1fWS7w4b0+GUP7CvkixmcyYqykxzpKS4Lcw=="
+  "resolved" "https://registry.npmjs.org/react-semantic-ui-range/-/react-semantic-ui-range-0.7.1.tgz"
+  "version" "0.7.1"
+
 "react@^16.9.34 || ^17 || ^18", "react@^18.2.0", "react@^18.3.1", "react@>=16.8.0":
   "integrity" "sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ=="
   "resolved" "https://registry.npmjs.org/react/-/react-18.3.1.tgz"

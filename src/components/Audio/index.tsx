@@ -14,6 +14,7 @@ import { convertSeconds } from "../../helpers/helpers";
 import defaultPosterIcon from "../../assets/icons/audio-poster.svg";
 
 import "./styles.scss";
+import { useRangeInput } from "../../hooks/useRangeInput";
 
 type AudioProps = {
   audioSrc: string;
@@ -24,12 +25,13 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
   const [duration, setDuration] = useState<number>(0);
   const [currentValue, setCurrentValue] = useState<number>(0);
   const [volume, setVolume] = useState<number>(0);
-
   const [displayedValue, setDisplayedValue] = useState<string>("");
-
   const [isOptionsActive, setIsOptionsActive] = useState(false);
-
   const [isHovered, setIsHovered] = useState(false);
+  const [progressBarValue, setProgressBarValue] = useState(0);
+  const [isSeeking, setIsSeeking] = useState(false);
+
+  const [isProgressBarDisabled, setIsProgressBarDisabled] = useState(true);
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
@@ -37,34 +39,47 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
 
   const audioClasses = isPlaying ? "audio audio--playing" : "audio";
 
+  const [config, setConfig] = useRangeInput();
+
   useEffect(() => {
+    const handleLoadedMetadata = () => {
+      setDuration(audioRef.current.duration);
+      audioRef.current.volume = 0.5;
+      setVolume(0.5);
+      setConfig((prevState) => ({
+        ...prevState,
+        max: audioRef.current.duration,
+      }));
+      let convertedDuration = convertSeconds(audioRef.current.duration);
+      setDisplayedValue(convertedDuration);
+    };
+
+    const handleTimeUpdate = () => {
+      setCurrentValue(audioRef.current.currentTime);
+      setProgressBarValue(audioRef.current.currentTime);
+    };
+
+    const handleEnded = () => {
+      setCurrentValue(0);
+      setIsPlaying(false);
+      setProgressBarValue(0);
+      setDisplayedValue(duration.toString());
+    };
+
     if (audioRef.current) {
-      audioRef.current.addEventListener("loadedmetadata", () => {
-        setDuration(audioRef.current.duration);
-        audioRef.current.volume = 0.5;
-        setVolume(0.5);
-
-        let convertedDuration = convertSeconds(audioRef.current.duration);
-        setDisplayedValue(convertedDuration);
-      });
-
-      audioRef.current.addEventListener("timeupdate", () => {
-        setCurrentValue(audioRef.current.currentTime);
-      });
-
-      audioRef.current.addEventListener("ended", () => {
-        setCurrentValue(0);
-        setIsPlaying(false);
-
-        setDisplayedValue(duration.toString());
-      });
+      audioRef.current.addEventListener("loadedmetadata", handleLoadedMetadata);
+      audioRef.current.addEventListener("timeupdate", handleTimeUpdate);
+      audioRef.current.addEventListener("ended", handleEnded);
     }
 
     return () => {
       if (audioRef.current) {
-        audioRef.current.removeEventListener("loadedmetadata");
-        audioRef.current.removeEventListener("timeupdate");
-        audioRef.current.removeEventListener("ended");
+        audioRef.current.removeEventListener(
+          "loadedmetadata",
+          handleLoadedMetadata
+        );
+        audioRef.current.removeEventListener("timeupdate", handleTimeUpdate);
+        audioRef.current.removeEventListener("ended", handleEnded);
       }
     };
   }, []);
@@ -83,25 +98,43 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
 
       setDisplayedValue(convertedCurrentTime);
     }
-
-    if (progressBarRef.current) {
-      if (currentValue === 0) {
-        progressBarRef.current.style.width = 0;
-      } else {
-        let progressValue =
-          (audioRef.current.currentTime * 100) / audioRef.current.duration;
-
-        progressBarRef.current.style.width = `${progressValue.toFixed(2)}%`;
-      }
-    }
   }, [currentValue]);
 
+  useEffect(() => {
+    if (isSeeking) {
+      let convertedCurrentTime = convertSeconds(progressBarValue);
+
+      setDisplayedValue(convertedCurrentTime);
+    }
+  }, [isSeeking, progressBarValue]);
+
   const handleAudioClick = () => {
-    setIsPlaying(!isPlaying);
+    setIsPlaying((prevState) => !prevState);
   };
 
   const handleOptionsClick = () => {
     setIsOptionsActive((prevState) => !prevState);
+  };
+
+  const handleChangeProgressBarValue = (event: any) => {
+    setCurrentValue(event.target.value);
+    setProgressBarValue(event.target.value);
+  };
+
+  const handleMouseDown = () => {
+    setIsPlaying(false);
+    setIsSeeking(true);
+    setIsHovered(true);
+  };
+
+  const handleMouseUp = (event: any) => {
+    event.stopPropagation();
+
+    audioRef.current.currentTime = progressBarValue;
+
+    setIsPlaying(true);
+    setIsSeeking(false);
+    setIsHovered(false);
   };
 
   useClickOutside(optiosRef, () => setIsOptionsActive(false));
@@ -123,10 +156,12 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
             <div className="audio__poster-effect">
               {!isHovered && isPlaying ? (
                 <Equalizer />
-              ) : !isHovered && !isPlaying ? (
-                <></>
-              ) : isPlaying ? (
+              ) : isSeeking ? (
                 <Icon28Pause fill="#fff" />
+              ) : isPlaying && isHovered ? (
+                <Icon28Pause fill="#fff" />
+              ) : !isPlaying && !isHovered ? (
+                <></>
               ) : (
                 <Icon28Play fill="#fff" />
               )}
@@ -145,7 +180,15 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
             </IconButton>
             {isOptionsActive && (
               <Options
-                data={["option 1", "option 2", "option 3"]}
+                data={[
+                  {
+                    text: `${
+                      isProgressBarDisabled ? "Разблокировать" : "Заблокировать"
+                    } прогрес бар`,
+                    func: () =>
+                      setIsProgressBarDisabled(!isProgressBarDisabled),
+                  },
+                ]}
                 ref={optiosRef}
                 onItemClick={handleOptionsClick}
               />
@@ -155,7 +198,15 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
         <audio className="audio__player" src={audioSrc} ref={audioRef}></audio>
       </div>
       <div className="audio__progress">
-        <ProgressBar ref={progressBarRef} />
+        <ProgressBar
+          ref={progressBarRef}
+          value={progressBarValue}
+          config={config}
+          onChange={handleChangeProgressBarValue}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          disabled={isProgressBarDisabled}
+        />
       </div>
     </div>
   );
