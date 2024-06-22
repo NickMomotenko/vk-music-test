@@ -8,13 +8,13 @@ import { ProgressBar } from "../ProgressBar";
 import { Options } from "../Options";
 
 import { useClickOutside } from "../../hooks/useClickOutside";
+import { useRangeInput } from "../../hooks/useRangeInput";
 
 import { convertSeconds } from "../../helpers/helpers";
 
 import defaultPosterIcon from "../../assets/icons/audio-poster.svg";
 
 import "./styles.scss";
-import { useRangeInput } from "../../hooks/useRangeInput";
 
 type AudioProps = {
   audioSrc: string;
@@ -31,7 +31,7 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
   const [progressBarValue, setProgressBarValue] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
 
-  const [isProgressBarDisabled, setIsProgressBarDisabled] = useState(true);
+  const [isProgressBarDisabled, setIsProgressBarDisabled] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
@@ -54,11 +54,6 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
       setDisplayedValue(convertedDuration);
     };
 
-    const handleTimeUpdate = () => {
-      setCurrentValue(audioRef.current.currentTime);
-      setProgressBarValue(audioRef.current.currentTime);
-    };
-
     const handleEnded = () => {
       setCurrentValue(0);
       setIsPlaying(false);
@@ -68,7 +63,6 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
 
     if (audioRef.current) {
       audioRef.current.addEventListener("loadedmetadata", handleLoadedMetadata);
-      audioRef.current.addEventListener("timeupdate", handleTimeUpdate);
       audioRef.current.addEventListener("ended", handleEnded);
     }
 
@@ -78,7 +72,6 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
           "loadedmetadata",
           handleLoadedMetadata
         );
-        audioRef.current.removeEventListener("timeupdate", handleTimeUpdate);
         audioRef.current.removeEventListener("ended", handleEnded);
       }
     };
@@ -98,21 +91,17 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
 
       setDisplayedValue(convertedCurrentTime);
     }
-  }, [currentValue]);
+  }, [currentValue, progressBarValue]);
 
   useEffect(() => {
     const handleMouseOutside = () => {
       handleMouseUp();
     };
-
     if (isSeeking) {
       let convertedCurrentTime = convertSeconds(progressBarValue);
-
       document.addEventListener("mouseup", handleMouseOutside);
-
       setDisplayedValue(convertedCurrentTime);
     }
-
     return () => document.removeEventListener("mouseup", handleMouseOutside);
   }, [isSeeking, progressBarValue]);
 
@@ -124,9 +113,10 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
     setIsOptionsActive((prevState) => !prevState);
   };
 
-  const handleChangeProgressBarValue = (event: any) => {
-    setCurrentValue(event.target.value);
-    setProgressBarValue(event.target.value);
+  const handleChangeProgressBarValue = (target: any) => {
+    setCurrentValue(Number(target.value));
+    setProgressBarValue(Number(target.value));
+    audioRef.current.currentTime = Number(target.value);
   };
 
   const handleMouseDown = () => {
@@ -141,6 +131,11 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
     setIsPlaying(true);
     setIsSeeking(false);
     setIsHovered(false);
+  };
+
+  const onTimeUpdate = () => {
+    setCurrentValue(audioRef.current.currentTime);
+    setProgressBarValue(audioRef.current.currentTime);
   };
 
   useClickOutside(optiosRef, () => setIsOptionsActive(false));
@@ -201,7 +196,12 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
             )}
           </div>
         </div>
-        <audio className="audio__player" src={audioSrc} ref={audioRef}></audio>
+        <audio
+          className="audio__player"
+          src={audioSrc}
+          ref={audioRef}
+          onTimeUpdate={onTimeUpdate}
+        ></audio>
       </div>
       <div className="audio__progress">
         <ProgressBar
@@ -211,7 +211,6 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
           onChange={handleChangeProgressBarValue}
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
-          onClick={handleMouseUp}
           disabled={isProgressBarDisabled}
         />
       </div>

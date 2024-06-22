@@ -6,34 +6,27 @@ import "./styles.scss";
 
 type ProgressBarProps = {
   onChange: (event: any) => void;
-  onMouseDown: () => void;
+  onMouseDown: (event: any) => void;
   onMouseUp: () => void;
-  onClick: () => void;
   value: number;
   config: any;
   disabled?: boolean;
 };
 
 export const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
-  (
-    { value, config, onChange, onMouseDown, onMouseUp, onClick, disabled },
-    ref
-  ) => {
+  ({ value, config, onChange, onMouseDown, onMouseUp, disabled }, ref) => {
     return (
       <>
         <Slider
-          ref={ref}
-          aria-label="Track bar"
-          value={value}
-          onChange={onChange}
           size="small"
+          ref={ref}
+          value={value}
+          onChange={(event: any) => onChange(event.target)}
           className="progress-bar"
-          defaultValue={config.defaultValue}
           min={config.min}
           max={config.max}
           onMouseDown={onMouseDown}
           onMouseUp={onMouseUp}
-          onClick={onClick}
           disabled={disabled}
         />
       </>
