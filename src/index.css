@@ -1,5 +1,7 @@
 * {
   box-sizing: border-box;
+  font-family: 'Roboto' !important;
+  font-weight: 400 !important;
 }
 
 body {
@@ -12,7 +14,7 @@ ul, li {
   margin: 0;
 }
 
-.app{
+.app {
   display: flex;
   align-items: center;
   justify-content: center;

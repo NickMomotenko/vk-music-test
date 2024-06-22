@@ -99,8 +99,9 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
     };
     if (isSeeking) {
       let convertedCurrentTime = convertSeconds(progressBarValue);
-      document.addEventListener("mouseup", handleMouseOutside);
       setDisplayedValue(convertedCurrentTime);
+
+      document.addEventListener("mouseup", handleMouseOutside);
     }
     return () => document.removeEventListener("mouseup", handleMouseOutside);
   }, [isSeeking, progressBarValue]);
@@ -177,7 +178,7 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
         <div className="audio__col">
           <div className="audio__options">
             <IconButton label="Опции" onClick={handleOptionsClick}>
-              <Icon16MoreVertical width={20} height={20} fill="#2688EB" />
+              <Icon16MoreVertical width={20} height={17} fill="#2688EB" />
             </IconButton>
             {isOptionsActive && (
               <Options
