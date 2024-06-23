@@ -6,7 +6,7 @@ import "./styles.scss";
 
 type ProgressBarProps = {
   onChange: (event: any) => void;
-  onMouseDown: (event: any) => void;
+  onMouseDown: () => void;
   onMouseUp: () => void;
   value: number;
   config: any;
@@ -21,7 +21,7 @@ export const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
           size="small"
           ref={ref}
           value={value}
-          onChange={(event: any) => onChange(event.target)}
+          onChange={onChange}
           className="progress-bar"
           min={config.min}
           max={config.max}

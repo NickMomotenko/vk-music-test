@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { RefObject, useEffect, useState } from "react";
 
-export const useVolume = (audioRef: any) => {
+export const useVolume = (audioRef: RefObject<HTMLAudioElement>) => {
   const [volume, setVolume] = useState(0.5);
 
   useEffect(() => {
-    audioRef.current.volume = volume;
+    if (audioRef.current) audioRef.current.volume = volume;
   }, [volume, audioRef]);
 
   return { volume, setVolume };

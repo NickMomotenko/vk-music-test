@@ -18,6 +18,7 @@ import { convertSeconds } from "../../helpers/helpers";
 import defaultPosterIcon from "../../assets/icons/audio-poster.svg";
 
 import "./styles.scss";
+import { useVolume } from "../../hooks/useVolume";
 
 type AudioProps = {
   audioSrc: string;
@@ -42,6 +43,7 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
     handleMouseDownOnProgressBar,
     handleMouseUpOnProgressBar,
   } = useProgressBar(audioRef);
+  const { volume } = useVolume(audioRef);
 
   const { config, setConfig } = useRangeInput();
 
@@ -49,13 +51,15 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
 
   useEffect(() => {
     const handleLoadedMetadata = () => {
-      setConfig((prevState: any) => ({
-        ...prevState,
-        max: Number(audioRef.current.duration),
-      }));
+      if (audioRef.current) {
+        setConfig((prevState: any) => ({
+          ...prevState,
+          max: Number(audioRef.current.duration),
+        }));
 
-      let convertedDuration = convertSeconds(audioRef.current.duration);
-      setDisplayedValue(convertedDuration);
+        let convertedDuration = convertSeconds(audioRef.current.duration);
+        setDisplayedValue(convertedDuration);
+      }
     };
 
     const handleEnded = () => {
@@ -109,10 +113,12 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
     setIsOptionsActive((prevState) => !prevState);
   };
 
-  const handleChangeProgressBarValue = (target: any) => {
-    setCurrentValue(Number(target.value));
+  const handleChangeProgressBarValue = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setCurrentValue(Number(event.target.value));
 
-    handleChangeOnProgressBarValue(Number(target.value));
+    handleChangeOnProgressBarValue(Number(event.target.value));
   };
 
   const handleMouseDown = () => {
@@ -131,7 +137,8 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
   };
 
   const onTimeUpdate = () => {
-    setProgressBarValue(Number(audioRef.current.currentTime));
+    if (audioRef.current)
+      setProgressBarValue(Number(audioRef.current.currentTime));
   };
 
   useClickOutside(optiosRef, () => setIsOptionsActive(false));
@@ -196,6 +203,7 @@ export const Audio: React.FC<AudioProps> = ({ audioSrc }) => {
           className="audio__player"
           src={audioSrc}
           ref={audioRef}
+          volume={volume}
           onTimeUpdate={onTimeUpdate}
         ></audio>
       </div>

@@ -1,13 +1,13 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 
-export const useProgressBar = (audioRef: any) => {
+export const useProgressBar = (audioRef: React.RefObject<HTMLAudioElement>) => {
   const [progressBarValue, setProgressBarValue] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
 
   const handleChangeOnProgressBarValue = (value: number) => {
     setProgressBarValue(value);
 
-    audioRef.current.currentTime = value;
+    if (audioRef.current) audioRef.current.currentTime = value;
   };
 
   const handleMouseDownOnProgressBar = useCallback(() => {
@@ -15,7 +15,7 @@ export const useProgressBar = (audioRef: any) => {
   }, []);
 
   const handleMouseUpOnProgressBar = () => {
-    audioRef.current.currentTime = progressBarValue;
+    if (audioRef.current) audioRef.current.currentTime = progressBarValue;
     setIsSeeking(false);
   };
 
